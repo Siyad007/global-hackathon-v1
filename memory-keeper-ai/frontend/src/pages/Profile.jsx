@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiUser, FiMail, FiCalendar, FiLogOut, FiEdit2 } from 'react-icons/fi';
 import Header from '../components/layout/Header';
-import Button from '../common/Button';
-
+import Button from '../components/common/Button';
 const Profile = () => {
   const { user } = useSelector(state => state.auth);
   const { stories } = useSelector(state => state.story);
@@ -32,23 +31,23 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
+      <main className="max-w-4xl px-4 py-8 mx-auto mt-16 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden"
+          className="overflow-hidden bg-white shadow-xl rounded-2xl"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 to-secondary-600 px-8 py-12 text-white">
+          <div className="px-8 py-12 text-white bg-gradient-to-r from-primary-600 to-secondary-600">
             <div className="flex items-center gap-6">
               <img
                 src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${user?.name}&size=128`}
                 alt="Profile"
-                className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
+                className="w-32 h-32 border-4 border-white rounded-full shadow-lg"
               />
               <div>
-                <h1 className="text-3xl font-bold mb-2">{user?.name}</h1>
-                <p className="text-white/80 flex items-center gap-2">
+                <h1 className="mb-2 text-3xl font-bold">{user?.name}</h1>
+                <p className="flex items-center gap-2 text-white/80">
                   <FiMail />
                   {user?.email}
                 </p>
@@ -75,7 +74,7 @@ const Profile = () => {
           {/* Profile Details */}
           <div className="px-8 py-6 space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Full Name
               </label>
               <div className="flex items-center gap-3 text-gray-900">
@@ -85,7 +84,7 @@ const Profile = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Email
               </label>
               <div className="flex items-center gap-3 text-gray-900">
@@ -95,18 +94,18 @@ const Profile = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Role
               </label>
               <div className="flex items-center gap-3">
-                <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">
+                <span className="px-3 py-1 text-sm font-semibold rounded-full bg-primary-100 text-primary-700">
                   {user?.role}
                 </span>
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
                 Member Since
               </label>
               <div className="flex items-center gap-3 text-gray-900">
@@ -117,7 +116,7 @@ const Profile = () => {
           </div>
           
           {/* Actions */}
-          <div className="px-8 py-6 bg-gray-50 border-t">
+          <div className="px-8 py-6 border-t bg-gray-50">
             <Button
               onClick={handleLogout}
               variant="danger"
