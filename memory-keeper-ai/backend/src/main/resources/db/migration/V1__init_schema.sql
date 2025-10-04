@@ -23,7 +23,7 @@ CREATE TABLE families (
                           id BIGSERIAL PRIMARY KEY,
                           name VARCHAR(255) NOT NULL,
                           description TEXT,
-                          created_by BIGINT REFERENCES users(id),
+                          created_by BIGINT REFERENCES users(id) ON DELETE CASCADE,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -49,8 +49,8 @@ CREATE TABLE stories (
                          audio_url TEXT,
                          image_url TEXT,
                          category VARCHAR(50),
-                         sentiment_score DECIMAL(3,2),  -- -1 to 1
-                         sentiment_label VARCHAR(50),   -- positive, negative, neutral
+                         sentiment_score DECIMAL(3,2),
+                         sentiment_label VARCHAR(50),
                          word_count INT,
                          duration_seconds INT,
                          is_public BOOLEAN DEFAULT false,
@@ -81,8 +81,8 @@ CREATE TABLE emotions (
                           id BIGSERIAL PRIMARY KEY,
                           story_id BIGINT REFERENCES stories(id) ON DELETE CASCADE,
                           emotion_type VARCHAR(50) NOT NULL,
-                          confidence DECIMAL(3,2),  -- 0 to 1
-                          timestamp_seconds INT,    -- Where in audio this emotion was detected
+                          confidence DECIMAL(3,2),
+                          timestamp_seconds INT,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -91,7 +91,7 @@ CREATE TABLE reactions (
                            id BIGSERIAL PRIMARY KEY,
                            story_id BIGINT REFERENCES stories(id) ON DELETE CASCADE,
                            user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                           reaction_type VARCHAR(50) NOT NULL,  -- HEART, SMILE, CRY, etc.
+                           reaction_type VARCHAR(50) NOT NULL,
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                            UNIQUE(story_id, user_id, reaction_type)
 );
@@ -101,14 +101,14 @@ CREATE TABLE comments (
                           id BIGSERIAL PRIMARY KEY,
                           story_id BIGINT REFERENCES stories(id) ON DELETE CASCADE,
                           user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                          parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,  -- For nested comments
+                          parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
                           content TEXT NOT NULL,
                           is_edited BOOLEAN DEFAULT false,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Time Capsules Table (Messages for future)
+-- Time Capsules Table
 CREATE TABLE time_capsules (
                                id BIGSERIAL PRIMARY KEY,
                                user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
@@ -118,53 +118,39 @@ CREATE TABLE time_capsules (
                                audio_url TEXT,
                                video_url TEXT,
                                delivery_date DATE NOT NULL,
-                               event_type VARCHAR(50),  -- WEDDING, BIRTHDAY, GRADUATION, etc.
+                               event_type VARCHAR(50),
                                is_delivered BOOLEAN DEFAULT false,
                                delivered_at TIMESTAMP,
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Prompts Table (Daily memory prompts)
+-- Prompts Table
 CREATE TABLE prompts (
                          id BIGSERIAL PRIMARY KEY,
                          content TEXT NOT NULL,
                          category VARCHAR(50),
-                         difficulty VARCHAR(50),  -- EASY, MEDIUM, HARD
+                         difficulty VARCHAR(50),
                          is_active BOOLEAN DEFAULT true,
                          usage_count INT DEFAULT 0,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- User Activity Log
+-- Activity Logs Table
 CREATE TABLE activity_logs (
                                id BIGSERIAL PRIMARY KEY,
                                user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                               activity_type VARCHAR(50) NOT NULL,  -- STORY_CREATED, COMMENT_ADDED, etc.
+                               activity_type VARCHAR(50) NOT NULL,
                                metadata JSONB,
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- AI Chat History (for chatbot)
+-- Chat Messages Table
 CREATE TABLE chat_messages (
                                id BIGSERIAL PRIMARY KEY,
                                user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
                                grandparent_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
                                message TEXT NOT NULL,
                                response TEXT NOT NULL,
-                               is_helpful BOOLEAN,  -- User feedback
+                               is_helpful BOOLEAN,
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Create Indexes for Performance
-CREATE INDEX idx_stories_user_id ON stories(user_id);
-CREATE INDEX idx_stories_family_id ON stories(family_id);
-CREATE INDEX idx_stories_category ON stories(category);
-CREATE INDEX idx_stories_created_at ON stories(created_at DESC);
-CREATE INDEX idx_comments_story_id ON comments(story_id);
-CREATE INDEX idx_reactions_story_id ON reactions(story_id);
-CREATE INDEX idx_tags_name ON tags(name);
-CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
-CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at DESC);
-
--- Full-Text Search Index
-CREATE INDEX idx_stories_search ON stories USING GIN(to_tsvector('english', title || ' ' || transcript || ' ' || COALESCE(enhanced_story, '')));

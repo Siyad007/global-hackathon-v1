@@ -61,17 +61,18 @@ public class StoryController {
         return ResponseEntity.ok(ApiResponse.success(story, "Story retrieved successfully"));
     }
 
+    // In src/main/java/com/example/memory_keeper/controller/StoryController.java
+
     @PatchMapping("/{id}/react")
     @Operation(summary = "Add reaction to story")
     public ResponseEntity<ApiResponse<StoryResponse>> addReaction(
             @PathVariable Long id,
             @RequestParam Long userId,
-            @RequestParam(defaultValue = "HEART") String reactionType) {
+            @RequestParam(defaultValue = "HEART") ReactionType reactionType) {
 
         StoryResponse story = storyService.addReaction(id, userId, reactionType);
         return ResponseEntity.ok(ApiResponse.success(story, "Reaction added"));
     }
-
     @PostMapping("/{id}/comment")
     @Operation(summary = "Add comment to story")
     public ResponseEntity<ApiResponse<StoryResponse>> addComment(

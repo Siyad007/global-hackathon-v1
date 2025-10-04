@@ -1,7 +1,8 @@
 package com.example.memory_keeper.model.entity;
-// src/main/java/com/memorykeeper/model/entity/Reaction.java
-package com.memorykeeper.model.entity;
+// src/main/java/com/example/memory_keeper/model/entity/Reaction.java
+package com.example.memory_keeper.model.entity;
 
+import com.example.memory_keeper.model.enums.ReactionType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,10 +31,16 @@ public class Reaction {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false)
-    private String reactionType;
+    private ReactionType reactionType;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    // Helper method
+    public String getReactionDisplay() {
+        return reactionType.getDisplayName();
+    }
 }

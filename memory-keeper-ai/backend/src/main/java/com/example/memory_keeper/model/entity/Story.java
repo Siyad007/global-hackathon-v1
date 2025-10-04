@@ -98,12 +98,20 @@ public class Story {
 
     @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
-
-    // Helper Methods
-    public int getReactionCount(String reactionType) {
+    // Add this method to Story entity
+    public int getReactionCount(ReactionType reactionType) {
         return (int) reactions.stream()
-                .filter(r -> r.getReactionType().equalsIgnoreCase(reactionType))
+                .filter(r -> r.getReactionType() == reactionType)
                 .count();
+    }
+
+    public int getReactionCount(String reactionTypeString) {
+        try {
+            ReactionType type = ReactionType.valueOf(reactionTypeString);
+            return getReactionCount(type);
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
     }
 
     public void incrementViews() {

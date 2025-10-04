@@ -95,14 +95,28 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    @Cacheable(value = "stories", key = "#id")
-    public StoryResponse getStoryById(Long id) {
-        Story story = storyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Story not found: " + id));
+    @CacheEvict(value = "stories", key = "#storyId")
+    public StoryResponse addReaction(Long storyId, Long userId, ReactionType reactionType) {
 
-        // Increment views
-        story.incrementViews();
-        storyRepository.save(story);
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Check if reaction already exists
+        boolean exists = reactionRepository.existsByStoryIdAndUserIdAndReactionType(
+                storyId, userId, reactionType);
+
+        if (!exists) {
+            Reaction reaction = Reaction.builder()
+                    .story(story)
+                    .user(user)
+                    .reactionType(reactionType)
+                    .build();
+
+            reactionRepository.save(reaction);
+        }
 
         return convertToResponse(story);
     }
