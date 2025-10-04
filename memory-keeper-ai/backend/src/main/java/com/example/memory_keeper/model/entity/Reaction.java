@@ -1,6 +1,4 @@
 package com.example.memory_keeper.model.entity;
-// src/main/java/com/example/memory_keeper/model/entity/Reaction.java
-package com.example.memory_keeper.model.entity;
 
 import com.example.memory_keeper.model.enums.ReactionType;
 import jakarta.persistence.*;

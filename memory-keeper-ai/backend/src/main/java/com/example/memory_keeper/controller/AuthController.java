@@ -1,7 +1,9 @@
 package com.example.memory_keeper.controller;
-// src/main/java/com/memorykeeper/controller/AuthController.java
-package com.memorykeeper.controller;
 
+import com.example.memory_keeper.dto.request.LoginRequest;
+import com.example.memory_keeper.dto.request.SignupRequest;
+import com.example.memory_keeper.dto.response.ApiResponse;
+import com.example.memory_keeper.dto.response.JwtResponse;
 import com.memorykeeper.dto.request.LoginRequest;
 import com.memorykeeper.dto.request.SignupRequest;
 import com.memorykeeper.dto.response.ApiResponse;

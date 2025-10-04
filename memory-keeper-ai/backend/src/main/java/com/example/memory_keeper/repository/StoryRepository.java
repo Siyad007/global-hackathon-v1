@@ -1,9 +1,7 @@
 package com.example.memory_keeper.repository;
-// src/main/java/com/memorykeeper/repository/StoryRepository.java
-package com.memorykeeper.repository;
 
-import com.memorykeeper.model.entity.Story;
-import com.memorykeeper.model.enums.StoryCategory;
+import com.example.memory_keeper.model.entity.Story;
+import com.example.memory_keeper.model.enums.StoryCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

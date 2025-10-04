@@ -1,6 +1,7 @@
 package com.example.memory_keeper.model.entity;
 
-
+import com.example.memory_keeper.model.enums.ReactionType;
+import com.example.memory_keeper.model.enums.StoryCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,6 +1,4 @@
 package com.example.memory_keeper.service;
-// src/main/java/com/memorykeeper/service/CloudinaryService.java
-package com.memorykeeper.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

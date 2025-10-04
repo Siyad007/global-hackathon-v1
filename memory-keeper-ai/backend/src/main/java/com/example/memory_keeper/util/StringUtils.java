@@ -1,6 +1,4 @@
 package com.example.memory_keeper.util;
-// src/main/java/com/example/memory_keeper/util/StringUtils.java
-package com.example.memory_keeper.util;
 
 public class StringUtils {
 

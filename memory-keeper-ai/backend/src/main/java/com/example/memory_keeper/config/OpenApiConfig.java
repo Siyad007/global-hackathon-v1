@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/example/memory_keeper/config/OpenApiConfig.java
-package com.example.memory_keeper.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

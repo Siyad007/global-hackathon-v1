@@ -1,6 +1,4 @@
 package com.example.memory_keeper.controller;
-// src/main/java/com/example/memory_keeper/controller/FamilyController.java
-package com.example.memory_keeper.controller;
 
 import com.example.memory_keeper.dto.response.ApiResponse;
 import com.example.memory_keeper.model.entity.Family;

@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/example/memory_keeper/config/WebSocketConfig.java
-package com.example.memory_keeper.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

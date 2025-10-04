@@ -1,6 +1,4 @@
 package com.example.memory_keeper.dto.response;
-// src/main/java/com/example/memory_keeper/dto/response/UserResponse.java
-package com.example.memory_keeper.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

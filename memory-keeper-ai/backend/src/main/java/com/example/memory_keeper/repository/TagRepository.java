@@ -1,8 +1,6 @@
 package com.example.memory_keeper.repository;
-// src/main/java/com/memorykeeper/repository/TagRepository.java
-package com.memorykeeper.repository;
 
-import com.memorykeeper.model.entity.Tag;
+import com.example.memory_keeper.model.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,4 @@
 package com.example.memory_keeper.model.enums;
-// src/main/java/com/example/memory_keeper/model/enums/EmotionType.java
-package com.example.memory_keeper.model.enums;
 
 /**
  * Emotion types detected by AI in stories

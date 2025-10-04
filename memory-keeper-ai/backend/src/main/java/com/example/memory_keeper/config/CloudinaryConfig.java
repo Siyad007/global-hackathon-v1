@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/memorykeeper/config/CloudinaryConfig.java
-package com.memorykeeper.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

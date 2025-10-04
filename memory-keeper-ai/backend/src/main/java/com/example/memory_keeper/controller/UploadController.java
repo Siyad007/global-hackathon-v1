@@ -1,9 +1,8 @@
 package com.example.memory_keeper.controller;
-// src/main/java/com/memorykeeper/controller/UploadController.java
-package com.memorykeeper.controller;
 
-import com.memorykeeper.dto.response.ApiResponse;
-import com.memorykeeper.service.CloudinaryService;
+
+import com.example.memory_keeper.dto.response.ApiResponse;
+import com.example.memory_keeper.service.CloudinaryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

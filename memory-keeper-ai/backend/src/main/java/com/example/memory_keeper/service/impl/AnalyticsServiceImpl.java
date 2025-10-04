@@ -1,9 +1,8 @@
 package com.example.memory_keeper.service.impl;
-// src/main/java/com/example/memory_keeper/service/impl/AnalyticsServiceImpl.java
-package com.example.memory_keeper.service.impl;
 
 import com.example.memory_keeper.dto.response.AnalyticsResponse;
 import com.example.memory_keeper.model.entity.Story;
+import com.example.memory_keeper.model.enums.EmotionType;
 import com.example.memory_keeper.repository.StoryRepository;
 import com.example.memory_keeper.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
@@ -63,10 +62,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             });
         });
 
-        Map<String, Long> emotionCounts = new HashMap<>();
+        Map<EmotionType, Long> emotionCounts = new HashMap<>();
         stories.forEach(story -> {
             story.getEmotions().forEach(emotion -> {
-                String emotionType = emotion.getEmotionType();
+                EmotionType emotionType = emotion.getEmotionType();
                 emotionCounts.put(emotionType, emotionCounts.getOrDefault(emotionType, 0L) + 1);
             });
         });

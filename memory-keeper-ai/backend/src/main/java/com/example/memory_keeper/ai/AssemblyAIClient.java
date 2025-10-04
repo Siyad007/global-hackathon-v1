@@ -1,6 +1,4 @@
 package com.example.memory_keeper.ai;
-// src/main/java/com/example/memory_keeper/ai/AssemblyAIClient.java
-package com.example.memory_keeper.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

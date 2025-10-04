@@ -1,6 +1,4 @@
 package com.example.memory_keeper.security;
-// src/main/java/com/example/memory_keeper/security/SecurityUtils.java
-package com.example.memory_keeper.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

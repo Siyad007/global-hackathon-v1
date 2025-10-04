@@ -1,6 +1,4 @@
 package com.example.memory_keeper.dto.request;
-// src/main/java/com/example/memory_keeper/dto/request/CommentRequest.java
-package com.example.memory_keeper.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

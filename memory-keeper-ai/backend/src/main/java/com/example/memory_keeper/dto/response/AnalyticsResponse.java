@@ -1,7 +1,6 @@
 package com.example.memory_keeper.dto.response;
-// src/main/java/com/example/memory_keeper/dto/response/AnalyticsResponse.java
-package com.example.memory_keeper.dto.response;
 
+import com.example.memory_keeper.model.enums.EmotionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +20,6 @@ public class AnalyticsResponse {
 
     private Map<String, Long> categoryCounts;
     private Map<String, Long> sentimentCounts;
-    private Map<String, Long> emotionCounts;
+    private Map<EmotionType, Long> emotionCounts;
     private Map<String, Long> tagCounts;
 }

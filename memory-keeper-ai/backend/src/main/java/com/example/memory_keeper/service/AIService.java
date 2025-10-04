@@ -1,8 +1,6 @@
 package com.example.memory_keeper.service;
-// src/main/java/com/memorykeeper/service/AIService.java
-package com.memorykeeper.service;
 
-import com.memorykeeper.dto.response.AIResponse;
+import com.example.memory_keeper.dto.response.AIResponse;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

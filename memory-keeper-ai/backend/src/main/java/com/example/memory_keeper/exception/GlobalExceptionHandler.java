@@ -1,6 +1,4 @@
 package com.example.memory_keeper.exception;
-// src/main/java/com/example/memory_keeper/exception/GlobalExceptionHandler.java
-package com.example.memory_keeper.exception;
 
 import com.example.memory_keeper.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;

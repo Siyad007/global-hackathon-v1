@@ -4,6 +4,7 @@ import com.example.memory_keeper.dto.request.StoryRequest;
 import com.example.memory_keeper.dto.response.ApiResponse;
 import com.example.memory_keeper.dto.response.StoryResponse;
 import com.example.memory_keeper.model.entity.Story;
+import com.example.memory_keeper.model.enums.ReactionType;
 import com.example.memory_keeper.service.StoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

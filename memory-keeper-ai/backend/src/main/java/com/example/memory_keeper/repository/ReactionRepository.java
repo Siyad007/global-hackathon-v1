@@ -1,4 +1,3 @@
-// src/main/java/com/example/memory_keeper/repository/ReactionRepository.java
 package com.example.memory_keeper.repository;
 
 import com.example.memory_keeper.model.entity.Reaction;

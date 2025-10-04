@@ -1,6 +1,4 @@
 package com.example.memory_keeper.security;
-// src/main/java/com/example/memory_keeper/security/CustomUserDetailsService.java
-package com.example.memory_keeper.security;
 
 import com.example.memory_keeper.model.entity.User;
 import com.example.memory_keeper.repository.UserRepository;

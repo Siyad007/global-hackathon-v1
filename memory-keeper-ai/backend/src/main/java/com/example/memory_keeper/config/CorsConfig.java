@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/example/memory_keeper/config/CorsConfig.java
-package com.example.memory_keeper.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

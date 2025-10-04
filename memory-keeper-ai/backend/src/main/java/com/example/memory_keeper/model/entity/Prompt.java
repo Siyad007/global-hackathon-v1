@@ -1,6 +1,4 @@
 package com.example.memory_keeper.model.entity;
-// src/main/java/com/memorykeeper/model/entity/Prompt.java
-package com.memorykeeper.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

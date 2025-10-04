@@ -1,6 +1,4 @@
 package com.example.memory_keeper.util;
-// src/main/java/com/example/memory_keeper/util/FileUtils.java
-package com.example.memory_keeper.util;
 
 import org.springframework.web.multipart.MultipartFile;
 

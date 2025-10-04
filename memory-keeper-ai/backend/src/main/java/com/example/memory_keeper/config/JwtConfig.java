@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/example/memory_keeper/config/JwtConfig.java
-package com.example.memory_keeper.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

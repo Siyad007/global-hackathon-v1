@@ -1,6 +1,4 @@
 package com.example.memory_keeper.security;
-// src/main/java/com/example/memory_keeper/security/JwtAuthenticationFilter.java
-package com.example.memory_keeper.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

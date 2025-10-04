@@ -1,10 +1,8 @@
 package com.example.memory_keeper.service.impl;
-// src/main/java/com/memorykeeper/service/impl/CloudinaryServiceImpl.java
-package com.memorykeeper.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.memorykeeper.service.CloudinaryService;
+import com.example.memory_keeper.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

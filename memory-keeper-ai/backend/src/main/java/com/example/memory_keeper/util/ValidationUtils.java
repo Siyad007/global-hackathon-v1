@@ -1,6 +1,4 @@
 package com.example.memory_keeper.util;
-// src/main/java/com/example/memory_keeper/util/ValidationUtils.java
-package com.example.memory_keeper.util;
 
 import java.util.regex.Pattern;
 

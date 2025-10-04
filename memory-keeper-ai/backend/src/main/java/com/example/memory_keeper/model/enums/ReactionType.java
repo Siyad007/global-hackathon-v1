@@ -1,6 +1,4 @@
 package com.example.memory_keeper.model.enums;
-// src/main/java/com/example/memory_keeper/model/enums/ReactionType.java
-package com.example.memory_keeper.model.enums;
 
 /**
  * Reaction types for stories

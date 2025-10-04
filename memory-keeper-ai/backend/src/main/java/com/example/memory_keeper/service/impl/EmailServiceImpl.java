@@ -1,6 +1,4 @@
 package com.example.memory_keeper.service.impl;
-// src/main/java/com/example/memory_keeper/service/impl/EmailServiceImpl.java
-package com.example.memory_keeper.service.impl;
 
 import com.example.memory_keeper.service.EmailService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,4 @@
 package com.example.memory_keeper.config;
-// src/main/java/com/memorykeeper/config/SecurityConfig.java
-package com.memorykeeper.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

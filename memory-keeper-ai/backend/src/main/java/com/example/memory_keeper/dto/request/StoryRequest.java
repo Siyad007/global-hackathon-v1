@@ -1,6 +1,4 @@
 package com.example.memory_keeper.dto.request;
-// src/main/java/com/memorykeeper/dto/request/StoryRequest.java
-package com.memorykeeper.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

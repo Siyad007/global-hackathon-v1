@@ -1,6 +1,4 @@
 package com.example.memory_keeper.model.entity;
-// src/main/java/com/example/memory_keeper/model/entity/Emotion.java
-package com.example.memory_keeper.model.entity;
 
 import com.example.memory_keeper.model.enums.EmotionType;
 import jakarta.persistence.*;

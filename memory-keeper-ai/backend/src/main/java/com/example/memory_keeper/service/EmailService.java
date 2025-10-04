@@ -1,6 +1,4 @@
 package com.example.memory_keeper.service;
-// src/main/java/com/example/memory_keeper/service/EmailService.java
-package com.example.memory_keeper.service;
 
 public interface EmailService {
     void sendWelcomeEmail(String to, String name);

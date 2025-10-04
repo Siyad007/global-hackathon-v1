@@ -1,15 +1,14 @@
 package com.example.memory_keeper.service.impl;
 
-// src/main/java/com/memorykeeper/service/impl/StoryServiceImpl.java
-package com.memorykeeper.service.impl;
-
-import com.memorykeeper.dto.request.StoryRequest;
-import com.memorykeeper.dto.response.StoryResponse;
-import com.memorykeeper.exception.ResourceNotFoundException;
-import com.memorykeeper.model.entity.*;
-import com.memorykeeper.model.enums.StoryCategory;
-import com.memorykeeper.repository.*;
-import com.memorykeeper.service.StoryService;
+import com.example.memory_keeper.dto.request.StoryRequest;
+import com.example.memory_keeper.dto.response.StoryResponse;
+import com.example.memory_keeper.exception.ResourceNotFoundException;
+import com.example.memory_keeper.model.entity.*;
+import com.example.memory_keeper.model.enums.EmotionType;
+import com.example.memory_keeper.model.enums.ReactionType;
+import com.example.memory_keeper.model.enums.StoryCategory;
+import com.example.memory_keeper.repository.*;
+import com.example.memory_keeper.service.StoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -74,7 +73,8 @@ public class StoryServiceImpl implements StoryService {
             Set<Emotion> emotions = request.getEmotions().stream()
                     .map(emotionData -> Emotion.builder()
                             .story(story)
-                            .emotionType(emotionData.get("label").toString())
+                            .emotionType(EmotionType.valueOf(
+                                    emotionData.get("type").toString().toUpperCase()))
                             .confidence(BigDecimal.valueOf(
                                     Double.parseDouble(emotionData.get("score").toString())))
                             .build())
@@ -142,31 +142,19 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    @CacheEvict(value = "stories", key = "#storyId")
-    public StoryResponse addReaction(Long storyId, Long userId, String reactionType) {
+    @Cacheable(value = "stories", key = "#id")
+    public StoryResponse getStoryById(Long id) {
+        Story story = storyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found with id: " + id));
 
-        Story story = storyRepository.findById(storyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Check if reaction already exists
-        boolean exists = reactionRepository.existsByStoryIdAndUserIdAndReactionType(
-                storyId, userId, reactionType);
-
-        if (!exists) {
-            Reaction reaction = Reaction.builder()
-                    .story(story)
-                    .user(user)
-                    .reactionType(reactionType)
-                    .build();
-
-            reactionRepository.save(reaction);
-        }
+        // Optionally increment view count
+        story.setViewsCount(story.getViewsCount() + 1);
+        storyRepository.save(story);
 
         return convertToResponse(story);
     }
+
+
 
     @Override
     @CacheEvict(value = "stories", key = "#storyId")
@@ -235,7 +223,7 @@ public class StoryServiceImpl implements StoryService {
                         .collect(Collectors.toList()))
                 .emotions(story.getEmotions().stream()
                         .map(e -> new StoryResponse.EmotionDTO(
-                                e.getEmotionType(),
+                                e.getEmotionType().name(),
                                 e.getConfidence().doubleValue()
                         ))
                         .collect(Collectors.toList()))

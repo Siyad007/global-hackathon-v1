@@ -1,6 +1,4 @@
 package com.example.memory_keeper.security;
-// src/main/java/com/memorykeeper/security/JwtTokenProvider.java
-package com.memorykeeper.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
