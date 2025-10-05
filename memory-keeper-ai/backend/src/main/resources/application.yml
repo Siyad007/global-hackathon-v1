@@ -82,7 +82,7 @@ ai:
 
 # CORS
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://*.vercel.app,https://memory-keeper-ai.vercel.app}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://memory-keeper-ai.vercel.app}
 
 # OpenAPI/Swagger
 springdoc:

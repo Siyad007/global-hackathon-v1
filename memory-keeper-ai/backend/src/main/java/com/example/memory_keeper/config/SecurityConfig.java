@@ -31,8 +31,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Your rules are fine for a hackathon, let's keep them.
-                        .requestMatchers("/api/auth/").permitAll()
-                        .requestMatchers("/api-docs/", "/swagger-ui/").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().permitAll()
                 );
 
