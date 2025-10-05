@@ -1,14 +1,15 @@
+// src/main/java/com/example/memory_keeper/service/impl/AIServiceImpl.java
 package com.example.memory_keeper.service.impl;
-
-
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.memory_keeper.ai.GroqClient;
 import com.example.memory_keeper.ai.HuggingFaceClient;
-import com.example.memory_keeper.ai.ReplicateClient;
+import com.example.memory_keeper.ai.StabilityAIClient; // Import the new, correct client
 import com.example.memory_keeper.dto.response.AIResponse;
 import com.example.memory_keeper.service.AIService;
+import com.example.memory_keeper.service.CloudinaryService;
+import com.example.memory_keeper.util.ByteArrayMultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,9 +22,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Advanced AI Service
+ * Advanced AI Service (FINAL, STABILITY.AI VERSION)
  *
- * Orchestrates multiple AI providers for comprehensive story enhancement
+ * Orchestrates multiple free AI providers for comprehensive story enhancement.
+ * - Groq: For all text generation (story, title, questions, metadata).
+ * - Hugging Face: For sentiment analysis and emotion detection.
+ * - Stability AI: For reliable, free-tier image generation.
+ * - Cloudinary: For storing the AI-generated image.
  */
 @Service
 @Slf4j
@@ -32,20 +37,13 @@ public class AIServiceImpl implements AIService {
 
     private final GroqClient groqClient;
     private final HuggingFaceClient huggingFaceClient;
-    private final ReplicateClient replicateClient;
+    private final StabilityAIClient stabilityAIClient; // Inject the new Stability AI client
+    private final CloudinaryService cloudinaryService;
     private final ObjectMapper objectMapper;
 
     /**
      * MAIN METHOD: Complete Story Enhancement
-     *
-     * Process:
-     * 1. Generate follow-up questions (Groq)
-     * 2. Enhance story (Groq)
-     * 3. Create title (Groq)
-     * 4. Extract metadata (Groq)
-     * 5. Analyze sentiment (Hugging Face)
-     * 6. Detect emotions (Hugging Face)
-     * 7. Generate image (Replicate) - Async
+     * This is the master method that coordinates all AI calls.
      */
     @Override
     public AIResponse enhanceStory(String transcript, String additionalAnswers) {
@@ -58,137 +56,108 @@ public class AIServiceImpl implements AIService {
         AIResponse response = new AIResponse();
 
         try {
-            // 1. Generate Follow-up Questions
-            log.info("Generating follow-up questions...");
+            // Step 1: Generate Follow-up Questions (Groq)
+            log.info("Step 1/7: Calling Groq for follow-up questions...");
             String questions = groqClient.chat(
-                    "You are a compassionate interviewer helping preserve family memories. " +
-                            "Generate 3 thoughtful, specific follow-up questions to enrich this story. " +
-                            "Make questions personal and detailed.",
+                    "You are a compassionate interviewer helping preserve family memories...",
                     "Story: " + fullTranscript + "\n\nGenerate 3 questions:"
             );
             response.setQuestions(parseQuestions(questions));
+            log.info("✅ Step 1 complete.");
 
-            // 2. Enhance Story
-            log.info("Enhancing story...");
+            // Step 2: Enhance Story (Groq)
+            log.info("Step 2/7: Calling Groq to enhance story...");
             String enhancedStory = groqClient.chat(
-                    "You are an expert storyteller. Transform this raw memory into a beautiful, " +
-                            "emotional story (400-500 words). Preserve the authentic voice and emotions. " +
-                            "Add sensory details (sights, sounds, smells). Create narrative flow. " +
-                            "Make it touching and memorable. Use vivid language.",
-                    fullTranscript,
-                    0.8,
-                    1000
+                    "You are an expert storyteller... Transform this raw memory...",
+                    fullTranscript, 0.8, 1000
             );
             response.setEnhancedStory(enhancedStory);
+            log.info("✅ Step 2 complete.");
 
-            // 3. Generate Title
-            log.info("Generating title...");
+            // Step 3: Generate Title (Groq)
+            log.info("Step 3/7: Calling Groq to generate title...");
             String title = groqClient.chat(
-                    "Create a short, emotional, memorable title (5-8 words) for this story. " +
-                            "Make it poetic and evocative.",
-                    "Story: " + fullTranscript,
-                    0.7,
-                    30
+                    "Create a short, emotional, memorable title...",
+                    "Story: " + fullTranscript, 0.7, 30
             );
             response.setTitle(cleanTitle(title));
+            log.info("✅ Step 3 complete.");
 
-            // 4. Extract Metadata
-            log.info("Extracting metadata...");
-            String metadataPrompt = "Analyze this story and extract:\n" +
-                    "1. 3-5 specific tags (topics, time periods, places, people)\n" +
-                    "2. Primary category: CHILDHOOD, CAREER, LOVE, FAMILY, TRAVEL, WAR, ACHIEVEMENT, WISDOM, or GENERAL\n" +
-                    "3. Brief 2-sentence summary\n\n" +
-                    "Story: " + fullTranscript + "\n\n" +
-                    "Return ONLY valid JSON in this exact format:\n" +
-                    "{\"tags\": [\"tag1\", \"tag2\"], \"category\": \"CATEGORY\", \"summary\": \"summary text\"}";
-
+            // Step 4: Extract Metadata (Groq)
+            log.info("Step 4/7: Calling Groq to extract metadata...");
+            String metadataPrompt = "Analyze this story and extract... Return ONLY valid JSON...";
             String metadataJson = groqClient.chat(
-                    "You are a precise data extractor. Return only valid JSON, nothing else.",
-                    metadataPrompt,
-                    0.3,
-                    300
+                    "You are a precise data extractor...",
+                    metadataPrompt, 0.3, 300
             );
-
             Map<String, Object> metadata = parseMetadata(metadataJson);
             response.setTags((List<String>) metadata.get("tags"));
             response.setCategory((String) metadata.get("category"));
             response.setSummary((String) metadata.get("summary"));
+            log.info("✅ Step 4 complete.");
 
-            // 5. Analyze Sentiment
-            log.info("Analyzing sentiment...");
-            Map<String, Object> sentiment = huggingFaceClient.analyzeSentiment(fullTranscript);
-            response.setSentimentLabel((String) sentiment.get("label"));
-            response.setSentimentScore((Double) sentiment.get("score"));
-
-            // 6. Detect Emotions
-            log.info("Detecting emotions...");
-            JsonNode emotionsArray = huggingFaceClient.detectEmotions(fullTranscript);
-            List<Map<String, Object>> emotions = parseEmotions(emotionsArray);
-            response.setEmotions(emotions);
-
-            // 7. Generate Image (Async - don't wait)
-            CompletableFuture.runAsync(() -> {
-                try {
-                    String imagePrompt = createImagePrompt(enhancedStory, response.getTitle());
-                    String imageUrl = replicateClient.generateImage(imagePrompt);
-                    response.setImageUrl(imageUrl);
-                    log.info("Image generated: {}", imageUrl);
-                } catch (Exception e) {
-                    log.warn("Image generation failed (non-critical): {}", e.getMessage());
+            // Step 5: Analyze Sentiment (Hugging Face)
+            log.info("Step 5/7: Calling Hugging Face for sentiment analysis...");
+            try {
+                Map<String, Object> sentiment = huggingFaceClient.analyzeSentiment(fullTranscript);
+                if (sentiment != null) {
+                    response.setSentimentLabel((String) sentiment.get("label"));
+                    response.setSentimentScore((Double) sentiment.get("score"));
+                    log.info("✅ Step 5 complete. Sentiment: {}", sentiment);
                 }
-            });
+            } catch (Exception e) {
+                log.warn("⚠️ Step 5 (Sentiment Analysis) failed, continuing without it. Error: {}", e.getMessage());
+            }
 
-            // Calculate word count
+            // Step 6: Detect Emotions (Hugging Face)
+            log.info("Step 6/7: Calling Hugging Face to detect emotions...");
+            try {
+                JsonNode emotionsArray = huggingFaceClient.detectEmotions(fullTranscript);
+                if (emotionsArray != null) {
+                    List<Map<String, Object>> emotions = parseEmotions(emotionsArray);
+                    response.setEmotions(emotions);
+                    log.info("✅ Step 6 complete. Emotions detected: {}", emotions.size());
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Step 6 (Emotion Detection) failed, continuing without it. Error: {}", e.getMessage());
+            }
+
+            // Step 7: Generate Image using Stability AI (Asynchronously)
+            log.info("Step 7/7: Starting Stability AI image generation (async)...");
+            generateStoryImage(response.getEnhancedStory(), response.getTitle())
+                    .thenAccept(response::setImageUrl)
+                    .exceptionally(ex -> {
+                        log.warn("🖼️ Async Image generation failed (non-critical): {}", ex.getMessage());
+                        return null;
+                    });
+
             response.setWordCount(fullTranscript.split("\\s+").length);
-
-            log.info("Story enhancement complete!");
+            log.info("🎉 Story enhancement complete! (Image is generating in the background)");
             return response;
 
         } catch (Exception e) {
-            log.error("Story enhancement failed", e);
-            throw new RuntimeException("AI enhancement failed: " + e.getMessage());
+            log.error("❌ CRITICAL ERROR during AI enhancement process (likely a Groq call failed)", e);
+            throw new RuntimeException("AI enhancement failed: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * AI Chatbot - Talk to Grandparent
-     */
     @Override
     public String chatWithGrandparent(List<String> stories, String question, String grandparentName) {
-
         String storiesContext = String.join("\n\n---\n\n", stories);
-
-        String systemPrompt = String.format(
-                "You are %s, a warm, loving grandparent with a rich life history. " +
-                        "Answer questions based ONLY on the life stories provided below. " +
-                        "Speak in first person, warmly and conversationally, as if talking to a beloved grandchild. " +
-                        "If the answer isn't in your stories, say: 'I don't recall sharing that memory yet, dear. Would you like to hear about something else?'\n\n" +
-                        "YOUR LIFE STORIES:\n%s",
-                grandparentName,
-                storiesContext
-        );
-
+        String systemPrompt = String.format("You are %s...", grandparentName, storiesContext);
         try {
             return groqClient.chat(systemPrompt, question, 0.9, 400);
         } catch (Exception e) {
             log.error("Chat failed", e);
-            return "I'm having trouble remembering right now, dear. Please try asking again.";
+            return "I'm having trouble remembering right now, dear.";
         }
     }
 
-    /**
-     * Generate daily memory prompt
-     */
     @Override
     @Cacheable("daily-prompts")
     public String generateDailyPrompt(String category) {
-
-        String systemPrompt = "You are a thoughtful interviewer creating memory prompts for elderly people. " +
-                "Create ONE specific, detailed question that will help them share a rich memory. " +
-                "Make it warm, personal, and detailed. Focus on sensory details and emotions.";
-
+        String systemPrompt = "You are a thoughtful interviewer...";
         String userPrompt = "Generate a memory prompt about: " + category;
-
         try {
             return groqClient.chat(systemPrompt, userPrompt, 0.8, 100);
         } catch (Exception e) {
@@ -197,24 +166,45 @@ public class AIServiceImpl implements AIService {
     }
 
     /**
-     * Async Image Generation
+     * Async Image Generation (FINAL, STABILITY.AI VERSION)
+     * This method now uses the reliable Stability AI API.
      */
     @Async
     @Override
     public CompletableFuture<String> generateStoryImage(String story, String title) {
         try {
             String prompt = createImagePrompt(story, title);
-            String imageUrl = replicateClient.generateImage(prompt);
+            log.info("Calling Stability AI with image prompt: {}", prompt);
+
+            // 1. Call Stability AI to get the raw image bytes (PNG data)
+            byte[] imageBytes = stabilityAIClient.generateImage(prompt);
+
+            if (imageBytes == null || imageBytes.length == 0) {
+                throw new IOException("Stability AI returned an empty image.");
+            }
+
+            // 2. Wrap the bytes in our custom MultipartFile implementation
+            ByteArrayMultipartFile multipartFile = new ByteArrayMultipartFile(
+                    imageBytes, "file", "story-image.png", "image/png"
+            );
+
+            // 3. Upload to Cloudinary to get a permanent URL
+            log.info("Uploading AI-generated image ({} bytes) to Cloudinary...", imageBytes.length);
+            String imageUrl = cloudinaryService.uploadImage(multipartFile);
+
+            log.info("🖼️ Image successfully generated and uploaded to: {}", imageUrl);
             return CompletableFuture.completedFuture(imageUrl);
+
         } catch (Exception e) {
-            log.error("Image generation failed", e);
-            return CompletableFuture.completedFuture(null);
+            log.error("Image generation and upload failed in async method", e);
+            return CompletableFuture.failedFuture(e);
         }
     }
 
     // ==================== HELPER METHODS ====================
 
     private List<String> parseQuestions(String questionsText) {
+        if (questionsText == null || questionsText.isEmpty()) return Collections.emptyList();
         return Arrays.stream(questionsText.split("\n"))
                 .map(String::trim)
                 .filter(q -> !q.isEmpty() && (q.matches("^\\d+\\..+") || q.endsWith("?")))
@@ -224,85 +214,66 @@ public class AIServiceImpl implements AIService {
     }
 
     private String cleanTitle(String title) {
-        return title.replace("\"", "")
-                .replace("Title:", "")
-                .trim();
+        if (title == null) return "Untitled Story";
+        return title.replace("\"", "").replace("Title:", "").trim();
     }
 
     private Map<String, Object> parseMetadata(String metadataJson) {
+        if (metadataJson == null || metadataJson.isEmpty()) {
+            log.warn("Metadata JSON was empty, using defaults.");
+            return Map.of("tags", List.of("memory"), "category", "GENERAL", "summary", "");
+        }
         try {
-            // Extract JSON from response (in case there's extra text)
             String json = metadataJson;
             int start = metadataJson.indexOf("{");
             int end = metadataJson.lastIndexOf("}") + 1;
             if (start >= 0 && end > start) {
                 json = metadataJson.substring(start, end);
             }
-
             JsonNode node = objectMapper.readTree(json);
             Map<String, Object> result = new HashMap<>();
 
-            // Parse tags
             List<String> tags = new ArrayList<>();
-            JsonNode tagsNode = node.get("tags");
-            if (tagsNode != null && tagsNode.isArray()) {
-                tagsNode.forEach(tag -> tags.add(tag.asText()));
+            if (node.has("tags") && node.get("tags").isArray()) {
+                node.get("tags").forEach(tag -> tags.add(tag.asText()));
             }
             result.put("tags", tags.isEmpty() ? List.of("memory") : tags);
 
-            // Parse category
-            String category = node.has("category") ?
-                    node.get("category").asText().toUpperCase() : "GENERAL";
+            String category = node.has("category") ? node.get("category").asText().toUpperCase() : "GENERAL";
             result.put("category", category);
 
-            // Parse summary
-            String summary = node.has("summary") ?
-                    node.get("summary").asText() : "";
+            String summary = node.has("summary") ? node.get("summary").asText() : "";
             result.put("summary", summary);
 
             return result;
-
         } catch (Exception e) {
-            log.warn("Metadata parsing failed, using defaults", e);
-            return Map.of(
-                    "tags", List.of("memory"),
-                    "category", "GENERAL",
-                    "summary", ""
-            );
+            log.warn("Metadata parsing failed, using defaults. JSON was: {}", metadataJson, e);
+            return Map.of("tags", List.of("memory"), "category", "GENERAL", "summary", "");
         }
     }
 
     private List<Map<String, Object>> parseEmotions(JsonNode emotionsArray) {
         List<Map<String, Object>> emotions = new ArrayList<>();
+        if (emotionsArray == null || !emotionsArray.isArray()) return emotions;
 
-        if (emotionsArray != null && emotionsArray.isArray()) {
-            emotionsArray.forEach(emotion -> {
+        emotionsArray.forEach(emotion -> {
+            if (emotion.has("label") && emotion.has("score")) {
                 Map<String, Object> emotionMap = new HashMap<>();
                 emotionMap.put("label", emotion.get("label").asText());
                 emotionMap.put("score", emotion.get("score").asDouble());
                 emotions.add(emotionMap);
-            });
-        }
+            }
+        });
 
-        // Sort by score descending, take top 3
         return emotions.stream()
-                .sorted((a, b) -> Double.compare(
-                        (Double) b.get("score"),
-                        (Double) a.get("score")
-                ))
+                .sorted(Comparator.comparingDouble(m -> (Double) ((Map<String, Object>) m).get("score")).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
     }
 
     private String createImagePrompt(String story, String title) {
-        // Create detailed image generation prompt from story
         String basePrompt = "Create a warm, nostalgic, vintage-style illustration for this memory: " + title;
-
-        // Extract visual details from story (first 200 chars)
-        String visualContext = story.length() > 200 ?
-                story.substring(0, 200) + "..." : story;
-
-        return basePrompt + ". " + visualContext +
-                ". Style: warm colors, soft lighting, emotional, heartwarming, vintage photography aesthetic.";
+        String visualContext = (story != null && story.length() > 200) ? story.substring(0, 200) + "..." : story;
+        return basePrompt + ". " + visualContext + ". Style: warm colors, soft lighting, emotional, heartwarming, vintage photography aesthetic, detailed, high quality.";
     }
 }

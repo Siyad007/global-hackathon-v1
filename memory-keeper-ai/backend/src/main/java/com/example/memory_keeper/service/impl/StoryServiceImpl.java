@@ -36,6 +36,7 @@ public class StoryServiceImpl implements StoryService {
     private final CommentRepository commentRepository;
     private final EmotionRepository emotionRepository;
 
+
     @Override
     @CacheEvict(value = "user-stories", key = "#request.userId")
     public StoryResponse createStory(StoryRequest request) {
@@ -52,7 +53,7 @@ public class StoryServiceImpl implements StoryService {
                 .summary(request.getSummary())
                 .audioUrl(request.getAudioUrl())
                 .imageUrl(request.getImageUrl())
-                .category(StoryCategory.valueOf(request.getCategory()))
+                .category(StoryCategory.valueOf(request.getCategory().toUpperCase()))
                 .sentimentLabel(request.getSentimentLabel())
                 .sentimentScore(request.getSentimentScore() != null ?
                         BigDecimal.valueOf(request.getSentimentScore()) : null)
@@ -71,13 +72,19 @@ public class StoryServiceImpl implements StoryService {
         // Add Emotions
         if (request.getEmotions() != null && !request.getEmotions().isEmpty()) {
             Set<Emotion> emotions = request.getEmotions().stream()
-                    .map(emotionData -> Emotion.builder()
-                            .story(story)
-                            .emotionType(EmotionType.valueOf(
-                                    emotionData.get("type").toString().toUpperCase()))
-                            .confidence(BigDecimal.valueOf(
-                                    Double.parseDouble(emotionData.get("score").toString())))
-                            .build())
+                    .map(emotionData -> {
+                        // --- START OF FIX 1 ---
+                        // The key from the AI response is "label", not "type".
+                        String emotionLabel = emotionData.get("label").toString().toUpperCase();
+                        // --- END OF FIX 1 ---
+
+                        return Emotion.builder()
+                                .story(story)
+                                .emotionType(EmotionType.valueOf(emotionLabel)) // Use the corrected variable
+                                .confidence(BigDecimal.valueOf(
+                                        Double.parseDouble(emotionData.get("score").toString())))
+                                .build();
+                    })
                     .collect(Collectors.toSet());
             story.setEmotions(emotions);
         }
@@ -86,14 +93,18 @@ public class StoryServiceImpl implements StoryService {
         Story savedStory = storyRepository.save(story);
 
         // Update User Stats
-        user.setTotalStories(user.getTotalStories() + 1);
+        // --- START OF FIX 2 ---
+        // Add a null-check for safety, even though the User entity has defaults.
+        // This prevents crashes if existing users in the DB have null values.
+        int currentStories = (user.getTotalStories() != null) ? user.getTotalStories() : 0;
+        user.setTotalStories(currentStories + 1);
+        // --- END OF FIX 2 ---
         userRepository.save(user);
 
         log.info("Story created: {} by user: {}", savedStory.getId(), user.getId());
 
         return convertToResponse(savedStory);
     }
-
     @Override
     @CacheEvict(value = "stories", key = "#storyId")
     public StoryResponse addReaction(Long storyId, Long userId, ReactionType reactionType) {

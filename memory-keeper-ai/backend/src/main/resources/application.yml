@@ -67,7 +67,8 @@ ai:
 
   replicate:
     api-url: https://api.replicate.com/v1
-
+  stabilityai:
+    api-url: https://api.stability.ai/v2beta/stable-image/generate/core
   elevenlabs:
     api-url: https://api.elevenlabs.io/v1
 
