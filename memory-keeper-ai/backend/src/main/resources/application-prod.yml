@@ -1,0 +1,52 @@
+# src/main/resources/application-prod.yml
+# Production configuration - uses environment variables from Render
+
+spring:
+  datasource:
+    url: ${DATABASE_URL}  # Render will provide this
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+
+  data:
+    redis:
+      url: ${UPSTASH_REDIS_URL}
+      password: ${UPSTASH_REDIS_PASSWORD}
+      ssl:
+        enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Never auto-modify in production
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+jwt:
+  secret: ${JWT_SECRET}
+
+ai:
+  groq:
+    api-key: ${GROQ_API_KEY}
+  huggingface:
+    api-key: ${HUGGINGFACE_API_KEY}
+  replicate:
+    api-key: ${REPLICATE_API_KEY}
+  elevenlabs:
+    api-key: ${ELEVENLABS_API_KEY}
+  assemblyai:
+    api-key: ${ASSEMBLYAI_API_KEY}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
+logging:
+  level:
+    com.memorykeeper: INFO
+    org.springframework.web: WARN
