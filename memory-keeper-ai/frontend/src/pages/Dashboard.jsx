@@ -39,27 +39,27 @@ const Dashboard = () => {
     acc + (story.viewsCount || 0), 0);
   
   const stats = [
-    { label: 'Stories', value: stories.length, icon: FiBook, color: 'from-blue-500 to-cyan-500' },
-    { label: 'Hearts', value: totalHearts, icon: FiHeart, color: 'from-pink-500 to-rose-500' },
-    { label: 'Views', value: totalViews, icon: FiTrendingUp, color: 'from-purple-500 to-indigo-500' },
-    { label: 'Streak', value: user?.streakCount || 0, icon: FiZap, color: 'from-orange-500 to-amber-500' }
+    { label: 'Stories', value: stories.length, icon: FiBook },
+    { label: 'Hearts', value: totalHearts, icon: FiHeart },
+    { label: 'Views', value: totalViews, icon: FiTrendingUp },
+    { label: 'Streak', value: user?.streakCount || 0, icon: FiZap }
   ];
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-12"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
             Welcome back, {user?.name?.split(' ')[0]}! 👋
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-slate-600 text-xl">
             {stories.length > 0 
               ? `You have ${stories.length} precious ${stories.length === 1 ? 'memory' : 'memories'} preserved` 
               : "Let's start preserving your precious memories"}
@@ -67,20 +67,20 @@ const Dashboard = () => {
         </motion.div>
         
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
+              className="bg-white border border-slate-200 rounded-xl p-6 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
             >
-              <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${stat.color} flex items-center justify-center mb-3`}>
+              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mb-4">
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
-              <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1 tracking-tight">{stat.value}</p>
+              <p className="text-sm text-slate-500 font-medium tracking-wide uppercase">{stat.label}</p>
             </motion.div>
           ))}
         </div>
@@ -90,26 +90,30 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-8 mb-8 text-white shadow-xl"
+          className="bg-slate-900 rounded-2xl p-8 md:p-10 mb-12 text-white shadow-xl relative overflow-hidden"
         >
-          <div className="flex items-start justify-between">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+          
+          <div className="relative z-10 flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl">💭</span>
-                <h2 className="text-2xl font-bold">Today's Memory Prompt</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-2xl">💭</span>
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight">Today's Memory Prompt</h2>
               </div>
-              <p className="text-xl text-white/90 mb-6 leading-relaxed">
+              <p className="text-xl text-slate-200 mb-8 leading-relaxed max-w-3xl">
                 "{todayPrompt}"
               </p>
               <Link
                 to="/record"
-                className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-lg font-semibold hover:bg-slate-100 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                <FiPlus />
+                <FiPlus className="w-5 h-5" />
                 Record Your Story
               </Link>
             </div>
-            <div className="hidden md:block text-6xl opacity-20">
+            <div className="hidden md:block text-6xl opacity-10 ml-6">
               🎤
             </div>
           </div>
@@ -117,12 +121,15 @@ const Dashboard = () => {
         
         {/* Stories Section */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Stories</h2>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-1">Your Stories</h2>
+              <p className="text-slate-600">Your preserved memories and family narratives</p>
+            </div>
             {stories.length > 0 && (
               <Link
                 to="/record"
-                className="text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-2"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 <FiPlus />
                 Add New
@@ -138,21 +145,23 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white rounded-2xl shadow-md p-12 text-center"
+              className="bg-white border border-slate-200 rounded-2xl p-12 md:p-16 text-center"
             >
-              <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <FiBook className="w-10 h-10 text-slate-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">
                 No stories yet
               </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <p className="text-slate-600 text-lg mb-8 max-w-md mx-auto leading-relaxed">
                 Start preserving your precious memories today. Every story matters,
                 every memory is a treasure.
               </p>
               <Link
                 to="/record"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                <FiPlus />
+                <FiPlus className="w-5 h-5" />
                 Record Your First Story
               </Link>
             </motion.div>
