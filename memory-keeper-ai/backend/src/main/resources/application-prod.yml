@@ -2,6 +2,10 @@
 # Production configuration - uses environment variables from Render
 
 spring:
+
+  cache:
+    type: none
+
   datasource:
     url: ${DATABASE_URL}  # Render will provide this
     username: ${DATABASE_USERNAME}
@@ -12,8 +16,9 @@ spring:
 
   data:
     redis:
-      url: ${UPSTASH_REDIS_URL}
-      password: ${UPSTASH_REDIS_PASSWORD}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
       ssl:
         enabled: true
 
