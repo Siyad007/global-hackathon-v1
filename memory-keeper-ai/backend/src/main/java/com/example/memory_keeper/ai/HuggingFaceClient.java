@@ -12,13 +12,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Hugging Face Client - FREE Sentiment Analysis
- *
- * What: Analyzes emotions in text
- * Why: FREE unlimited API calls
- * When: After story creation to detect sentiment
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -34,70 +27,85 @@ public class HuggingFaceClient {
     private final OkHttpClient client = new OkHttpClient();
 
     /**
-     * Analyze sentiment of text
-     * Returns: {label: "POSITIVE", score: 0.95}
+     * Analyze sentiment of text using Twitter RoBERTa model (more reliable)
      */
     public Map<String, Object> analyzeSentiment(String text) throws IOException {
+        // Using a more reliable and currently active model
+        String modelUrl = baseUrl + "/cardiffnlp/twitter-roberta-base-sentiment-latest";
 
-        String modelUrl = baseUrl + "/distilbert-base-uncased-finetuned-sst-2-english";
+        log.info("Calling HuggingFace sentiment analysis at: {}", modelUrl);
 
         String jsonBody = objectMapper.writeValueAsString(
                 Map.of("inputs", text)
         );
 
-        RequestBody body = RequestBody.create(
-                jsonBody,
-                MediaType.parse("application/json")
-        );
-
-        Request request = new Request.Builder()
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(modelUrl)
-                .addHeader("Authorization", "Bearer " + apiKey)
-                .post(body)
-                .build();
+                .post(RequestBody.create(jsonBody, MediaType.parse("application/json")));
+
+        if (apiKey != null && !apiKey.isEmpty()) {
+            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+        }
+
+        Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+
             if (!response.isSuccessful()) {
-                throw new IOException("Sentiment analysis failed: " + response.code());
+                log.error("HuggingFace API failed with status: {}", response.code());
+                log.error("Response body: {}", responseBody);
+                throw new IOException("Sentiment analysis failed: " + response.code() + " - " + responseBody);
             }
 
-            String responseBody = response.body().string();
+            log.info("HuggingFace response: {}", responseBody);
+
             JsonNode jsonArray = objectMapper.readTree(responseBody);
             JsonNode firstResult = jsonArray.get(0).get(0);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("label", firstResult.get("label").asText());
-            result.put("score", firstResult.get("score").asDouble());
+            // Map the labels: negative, neutral, positive
+            String label = firstResult.get("label").asText();
+            double score = firstResult.get("score").asDouble();
 
+            Map<String, Object> result = new HashMap<>();
+            result.put("label", label.toUpperCase());
+            result.put("score", score);
+
+            log.info("Sentiment result: {}", result);
             return result;
         }
     }
 
     /**
      * Detect multiple emotions
-     * Returns: [{label: "joy", score: 0.8}, {label: "love", score: 0.6}]
      */
     public JsonNode detectEmotions(String text) throws IOException {
-
         String modelUrl = baseUrl + "/j-hartmann/emotion-english-distilroberta-base";
+
+        log.info("Calling HuggingFace emotion detection at: {}", modelUrl);
 
         String jsonBody = objectMapper.writeValueAsString(
                 Map.of("inputs", text)
         );
 
-        RequestBody body = RequestBody.create(
-                jsonBody,
-                MediaType.parse("application/json")
-        );
-
-        Request request = new Request.Builder()
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(modelUrl)
-                .addHeader("Authorization", "Bearer " + apiKey)
-                .post(body)
-                .build();
+                .post(RequestBody.create(jsonBody, MediaType.parse("application/json")));
+
+        if (apiKey != null && !apiKey.isEmpty()) {
+            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+        }
+
+        Request request = requestBuilder.build();
 
         try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body().string();
+            String responseBody = response.body() != null ? response.body().string() : "";
+
+            if (!response.isSuccessful()) {
+                log.error("HuggingFace emotion API failed: {}", response.code());
+                throw new IOException("Emotion detection failed: " + response.code());
+            }
+
             return objectMapper.readTree(responseBody).get(0);
         }
     }

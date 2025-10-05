@@ -1,3 +1,4 @@
+// src/main/java/com/example/memory_keeper/ai/GroqClient.java
 package com.example.memory_keeper.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,6 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,31 +46,42 @@ public class GroqClient {
             .build();
 
     /**
-     * Call Groq API with custom system and user prompts
+     * Call Groq API with custom system and user prompts.
      */
     public String chat(String systemPrompt, String userMessage) throws IOException {
         return chat(systemPrompt, userMessage, 0.7, 1000);
     }
 
     /**
-     * Advanced call with temperature and max tokens control
+     * Advanced call with temperature and max tokens control.
+     * This is the FIXED version that prevents the 400 Bad Request error.
      */
     public String chat(String systemPrompt, String userMessage, double temperature, int maxTokens) throws IOException {
 
-        String jsonBody = String.format(
-                "{\"model\": \"%s\"," +
-                        "\"messages\": [" +
-                        "{\"role\": \"system\", \"content\": %s}," +
-                        "{\"role\": \"user\", \"content\": %s}" +
-                        "]," +
-                        "\"temperature\": %.1f," +
-                        "\"max_tokens\": %d}",
-                model,
-                objectMapper.writeValueAsString(systemPrompt),
-                objectMapper.writeValueAsString(userMessage),
-                temperature,
-                maxTokens
-        );
+        // --- START OF FIX ---
+
+        // 1. Build the request body using a Map for reliable JSON serialization.
+        // This avoids manual JSON string formatting and escaping issues.
+        Map<String, Object> messageSystem = new HashMap<>();
+        messageSystem.put("role", "system");
+        messageSystem.put("content", systemPrompt);
+
+        Map<String, Object> messageUser = new HashMap<>();
+        messageUser.put("role", "user");
+        messageUser.put("content", userMessage);
+
+        List<Map<String, Object>> messages = Arrays.asList(messageSystem, messageUser);
+
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("model", model);
+        requestBodyMap.put("messages", messages);
+        requestBodyMap.put("temperature", temperature);
+        requestBodyMap.put("max_tokens", maxTokens);
+
+        // 2. Convert the Map to a JSON string using ObjectMapper for safety.
+        String jsonBody = objectMapper.writeValueAsString(requestBodyMap);
+
+        // --- END OF FIX ---
 
         RequestBody body = RequestBody.create(
                 jsonBody,
@@ -80,29 +96,40 @@ public class GroqClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
+            // Read the body once to avoid "closed" errors.
+            String responseBody = response.body().string();
+
             if (!response.isSuccessful()) {
-                log.error("Groq API failed: {}", response.code());
+                // Add detailed logging to show the exact error from Groq's server.
+                log.error("Groq API call failed with status: {}", response.code());
+                log.error("Groq API response body: {}", responseBody);
                 throw new IOException("Groq API call failed: " + response.code());
             }
 
-            String responseBody = response.body().string();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-            return jsonResponse
-                    .get("choices")
-                    .get(0)
-                    .get("message")
-                    .get("content")
-                    .asText();
+            // Safer parsing of the response to prevent NullPointerExceptions.
+            if (jsonResponse.has("choices") && jsonResponse.get("choices").isArray() && !jsonResponse.get("choices").isEmpty()) {
+                JsonNode choice = jsonResponse.get("choices").get(0);
+                if (choice.has("message") && choice.get("message").has("content")) {
+                    return choice.get("message").get("content").asText();
+                }
+            }
+
+            // If the response structure is unexpected, throw a clear error.
+            log.error("Unexpected Groq API response structure: {}", responseBody);
+            throw new IOException("Could not parse content from Groq API response.");
         }
     }
 
     /**
-     * Stream response for real-time output (WebSocket)
+     * Stream response for real-time output (WebSocket).
+     * This remains a placeholder for future implementation.
      */
     public void chatStream(String systemPrompt, String userMessage, StreamCallback callback) {
-        // Implementation for streaming responses
-        // Useful for real-time chatbot experience
+        log.warn("chatStream is not yet implemented.");
+        // Implementation for streaming responses would go here.
+        // Useful for a real-time chatbot experience.
     }
 
     @FunctionalInterface

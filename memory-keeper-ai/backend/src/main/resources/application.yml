@@ -58,7 +58,7 @@ jwt:
 ai:
   groq:
     api-url: https://api.groq.com/openai/v1/chat/completions
-    model: llama3-70b-8192
+    model: llama-3.3-70b-versatile
 
   huggingface:
     api-url: https://api-inference.huggingface.co/models
@@ -74,7 +74,7 @@ ai:
 
 # CORS
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://*.vercel.app}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,https://*.vercel.app}
 
 # OpenAPI/Swagger
 springdoc:
