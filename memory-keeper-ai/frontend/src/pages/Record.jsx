@@ -28,6 +28,31 @@ import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { aiAPI } from '../api/ai.api';
 import { uploadAPI } from '../api/upload.api';
 
+// Clean transcript function
+const cleanTranscript = (text) => {
+  if (!text || typeof text !== 'string') return '';
+  const words = text.trim().split(/\s+/);
+  const uniqueWordsInOrder = [];
+  const seen = new Set();
+  for (let i = words.length - 1; i >= 0; i--) {
+    const word = words[i].toLowerCase().replace(/[.,!?]/g, '');
+    if (word && !seen.has(word)) {
+      uniqueWordsInOrder.unshift(words[i]);
+      seen.add(word);
+    }
+  }
+  let cleanedText = uniqueWordsInOrder.join(' ');
+  if (cleanedText.length > 0) {
+    cleanedText = cleanedText.charAt(0).toUpperCase() + cleanedText.slice(1);
+    if (!/[.!?]$/.test(cleanedText)) cleanedText += '.';
+  }
+  if (cleanedText.length < 20 || cleanedText.split(' ').length < 5) {
+    toast.warn("Recording was too short. Please try to speak for at least a few seconds.");
+    return null;
+  }
+  return cleanedText;
+};
+
 const Record = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,7 +60,7 @@ const Record = () => {
   
   const [step, setStep] = useState('record'); // record, enhance, preview
   const [mode, setMode] = useState('voice'); // voice or text
-  const [transcript, setTranscriptState] = useState('');
+  const [transcript, setTranscript] = useState(''); // Unified state for both voice and text
   const [aiResponse, setAiResponse] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState(0);
@@ -57,7 +82,8 @@ const Record = () => {
     isListening,
     isSupported,
     startListening,
-    stopListening
+    stopListening,
+    resetTranscript
   } = useSpeechRecognition();
   
   // Daily prompts database
@@ -80,9 +106,12 @@ const Record = () => {
     setTodayPrompt(prompts[randomIndex]);
   }, []);
   
+  // Sync speech transcript with component state (only in voice mode)
   useEffect(() => {
-    setTranscriptState(speechTranscript);
-  }, [speechTranscript]);
+    if (mode === 'voice') {
+      setTranscript(speechTranscript);
+    }
+  }, [speechTranscript, mode]);
   
   const shufflePrompt = () => {
     let newIndex;
@@ -107,6 +136,14 @@ const Record = () => {
     }
   };
   
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    // Reset everything when switching modes
+    setTranscript('');
+    resetTranscript();
+    resetRecording();
+  };
+  
   const processingStages = [
     { id: 0, label: 'Analyzing content', icon: FiBarChart2 },
     { id: 1, label: 'Enhancing narrative', icon: FiEdit3 },
@@ -116,10 +153,8 @@ const Record = () => {
   ];
   
   const handleContinue = async () => {
-    if (!transcript.trim()) {
-      toast.error('Please record or type your story first');
-      return;
-    }
+    const cleanedTranscript = cleanTranscript(transcript);
+    if (!cleanedTranscript) return;
     
     setProcessing(true);
     setStep('enhance');
@@ -129,8 +164,10 @@ const Record = () => {
       let audioUrl = '';
       if (audioBlob) {
         setProcessingStage(0);
+        toast.info('📤 Uploading audio...');
         const uploadResponse = await uploadAPI.uploadAudio(audioBlob);
         audioUrl = uploadResponse.data.data;
+        toast.success('✅ Audio uploaded!');
       }
       
       // Simulate processing stages
@@ -140,21 +177,23 @@ const Record = () => {
       }
       
       // Enhance with AI
-      const response = await aiAPI.enhanceStory(transcript);
+      toast.info('🤖 AI is enhancing your story...');
+      const response = await aiAPI.enhanceStory(cleanedTranscript);
       
       const enhancedData = {
         ...response.data.data,
         audioUrl,
-        transcript
+        originalTranscript: transcript,
+        cleanedTranscript: cleanedTranscript,
       };
       
       setAiResponse(enhancedData);
       setStep('preview');
-      toast.success('Story enhanced successfully');
+      toast.success('✨ Story enhanced!');
       
     } catch (error) {
       console.error('Processing error:', error);
-      toast.error('Failed to process story. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to process story. Please try again.');
       setStep('record');
     } finally {
       setProcessing(false);
@@ -169,7 +208,7 @@ const Record = () => {
       const storyData = {
         userId: user.id,
         title: aiResponse.title,
-        transcript: transcript,
+        transcript: aiResponse.cleanedTranscript,
         enhancedStory: aiResponse.enhancedStory,
         summary: aiResponse.summary,
         audioUrl: aiResponse.audioUrl,
@@ -183,9 +222,9 @@ const Record = () => {
         isPublic: false
       };
       
-      await dispatch(createStory(storyData));
+      await dispatch(createStory(storyData)).unwrap();
       
-      toast.success('Story saved successfully');
+      toast.success('🎉 Story saved successfully!');
       navigate('/dashboard');
       
     } catch (error) {
@@ -339,7 +378,7 @@ const Record = () => {
                 <div className="p-6">
                   <div className="grid md:grid-cols-2 gap-4 mb-8">
                     <motion.button
-                      onClick={() => setMode('voice')}
+                      onClick={() => handleModeChange('voice')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className={`relative p-6 rounded-xl border-2 transition-all ${
@@ -369,7 +408,7 @@ const Record = () => {
                     </motion.button>
                     
                     <motion.button
-                      onClick={() => setMode('text')}
+                      onClick={() => handleModeChange('text')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className={`relative p-6 rounded-xl border-2 transition-all ${
@@ -504,7 +543,11 @@ const Record = () => {
                             />
                             
                             <button
-                              onClick={resetRecording}
+                              onClick={() => {
+                                resetRecording();
+                                resetTranscript();
+                                setTranscript('');
+                              }}
                               className="w-full py-3 px-4 border-2 border-slate-300 text-slate-700 rounded-lg hover:border-slate-400 hover:bg-slate-50 transition-all font-medium flex items-center justify-center gap-2"
                             >
                               <FiRefreshCw className="w-4 h-4" />
@@ -552,7 +595,7 @@ const Record = () => {
                       <div className="relative">
                         <textarea
                           value={transcript}
-                          onChange={(e) => setTranscriptState(e.target.value)}
+                          onChange={(e) => setTranscript(e.target.value)}
                           className="w-full h-80 p-6 border-2 border-slate-200 rounded-xl focus:border-slate-900 focus:ring-4 focus:ring-slate-100 transition-all resize-none text-slate-700 leading-relaxed"
                           placeholder="Begin writing your story here. Take your time and include as much detail as you remember..."
                         />
@@ -587,7 +630,8 @@ const Record = () => {
                     >
                       <button
                         onClick={handleContinue}
-                        className="w-full py-4 px-6 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
+                        disabled={processing}
+                        className="w-full py-4 px-6 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
                       >
                         Continue to Enhancement
                         <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1027,7 +1071,7 @@ const Record = () => {
                       </button>
                     </div>
                     <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                      {transcript}
+                      {aiResponse.originalTranscript || aiResponse.cleanedTranscript}
                     </p>
                   </motion.div>
                 </details>
@@ -1136,8 +1180,9 @@ const Record = () => {
                   onClick={() => {
                     setStep('record');
                     setAiResponse(null);
-                    setTranscriptState('');
+                    setTranscript('');
                     resetRecording();
+                    resetTranscript();
                   }}
                   disabled={processing}
                   whileHover={{ scale: processing ? 1 : 1.02 }}
