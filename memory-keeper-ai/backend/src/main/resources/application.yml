@@ -22,6 +22,11 @@ spring:
         order_inserts: true
         order_updates: true
 
+  flyway:
+    enabled: true # Enabled by default for all environments
+    validate-on-migrate: true # This is the safe default
+    baseline-on-migrate: true
+
   # Cache Configuration
 #  cache:
 #    type: redis

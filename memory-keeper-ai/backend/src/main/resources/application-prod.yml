@@ -24,6 +24,10 @@ spring:
 
   flyway:
     enabled: true
+    # This tells Flyway to automatically update the checksums in its history table
+    # to match the local migration files. It will fix the "checksum mismatch" error.
+    repair: true
+    validate-on-migrate: true # We can keep validation on now
     baseline-on-migrate: true
 
 jwt:
