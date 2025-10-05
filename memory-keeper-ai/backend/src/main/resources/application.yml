@@ -8,7 +8,7 @@ spring:
       type: none
 
   profiles:
-    active: dev
+    active: prod  # Default to production, override with -Dspring.profiles.active=dev for development
 
   # JPA Configuration (common for all environments)
   jpa:
