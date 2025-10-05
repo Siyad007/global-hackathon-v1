@@ -1,25 +1,17 @@
 # src/main/resources/application.yml
+# Common configuration shared across ALL environments
 
 spring:
   application:
     name: memory-keeper
-  
-  # PostgreSQL (NeonDB)
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-  
-  # JPA Configuration
+    cache:
+      type: none
+
+  profiles:
+    active: dev
+
+  # JPA Configuration (common for all environments)
   jpa:
-    hibernate:
-      ddl-auto: validate  # Use Flyway for migrations
-    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -29,38 +21,23 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
-  
-  # Flyway Migration
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
-  
-  # Redis (Upstash)
-  data:
-    redis:
-      url: ${UPSTASH_REDIS_URL:redis://localhost:6379}
-      password: ${UPSTASH_REDIS_PASSWORD:}
-      ssl:
-        enabled: true
-  
-  cache:
-    type: redis
-    redis:
-      time-to-live: 3600000  # 1 hour
-  
+
+  # Cache Configuration
+#  cache:
+#    type: redis
+#    redis:
+#      time-to-live: 3600000  # 1 hour
+
   # File Upload
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
-  
+
   # Mail Configuration (Optional)
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -77,41 +54,30 @@ server:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:MyVerySecretKeyForMemoryKeeperHackathon2024MustBe256BitsLong}
   expiration: 86400000  # 24 hours
 
-# AI Services
+# AI Services (Common URLs and Models)
 ai:
   groq:
-    api-key: ${GROQ_API_KEY:}
     api-url: https://api.groq.com/openai/v1/chat/completions
-    model: llama3-70b-8192
-  
-  huggingface:
-    api-key: ${HUGGINGFACE_API_KEY:}
-    api-url: https://api-inference.huggingface.co/models
-  
-  replicate:
-    api-key: ${REPLICATE_API_KEY:}
-    api-url: https://api.replicate.com/v1
-  
-  elevenlabs:
-    api-key: ${ELEVENLABS_API_KEY:}
-    api-url: https://api.elevenlabs.io/v1
-  
-  assemblyai:
-    api-key: ${ASSEMBLYAI_API_KEY:}
-    api-url: https://api.assemblyai.com/v2
+    model: llama-3.3-70b-versatile
 
-# Cloudinary
-cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
-  api-key: ${CLOUDINARY_API_KEY:}
-  api-secret: ${CLOUDINARY_API_SECRET:}
+  huggingface:
+    api-url: https://api-inference.huggingface.co/models
+
+  replicate:
+    api-url: https://api.replicate.com/v1
+  stabilityai:
+    api-url: https://api.stability.ai/v2beta/stable-image/generate/core
+  elevenlabs:
+    api-url: https://api.elevenlabs.io/v1
+
+  assemblyai:
+    api-url: https://api.assemblyai.com/v2
 
 # CORS
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,https://*.vercel.app}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://*.vercel.app}
 
 # OpenAPI/Swagger
 springdoc:
@@ -123,9 +89,5 @@ springdoc:
 
 # Logging
 logging:
-  level:
-    com.memorykeeper: DEBUG
-    org.springframework.web: INFO
-    org.hibernate: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

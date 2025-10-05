@@ -1,3 +1,4 @@
+// src/main/java/com/example/memory_keeper/model/entity/Story.java
 package com.example.memory_keeper.model.entity;
 
 import com.example.memory_keeper.model.enums.ReactionType;
@@ -82,25 +83,42 @@ public class Story {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relationships
-    @ManyToMany
+    // --- START OF FIX ---
+    // Initialize all collections to prevent NullPointerExceptions.
+    @ManyToMany(fetch = FetchType.EAGER) // Use EAGER fetch for simplicity here
     @JoinTable(
             name = "story_tags",
             joinColumns = @JoinColumn(name = "story_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
-    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private Set<Emotion> emotions = new HashSet<>();
 
-    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private Set<Reaction> reactions = new HashSet<>();
 
-    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     private Set<Comment> comments = new HashSet<>();
-    // Add this method to Story entity
+    // --- END OF FIX ---
+
+    // Helper Methods
+    public void incrementViews() {
+        if (this.viewsCount == null) {
+            this.viewsCount = 0;
+        }
+        this.viewsCount++;
+    }
+
     public int getReactionCount(ReactionType reactionType) {
+        if (this.reactions == null) {
+            return 0;
+        }
         return (int) reactions.stream()
                 .filter(r -> r.getReactionType() == reactionType)
                 .count();
@@ -113,9 +131,5 @@ public class Story {
         } catch (IllegalArgumentException e) {
             return 0;
         }
-    }
-
-    public void incrementViews() {
-        this.viewsCount++;
     }
 }
