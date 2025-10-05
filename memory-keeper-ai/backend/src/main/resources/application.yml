@@ -77,7 +77,7 @@ ai:
 
 # CORS
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,https://*.vercel.app}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://*.vercel.app}
 
 # OpenAPI/Swagger
 springdoc:
