@@ -32,15 +32,6 @@ CREATE INDEX idx_tags_usage_count ON tags(usage_count DESC);
 CREATE INDEX idx_emotions_story_id ON emotions(story_id);
 CREATE INDEX idx_emotions_type ON emotions(emotion_type);
 
--- Activity Log Indexes
-CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
-CREATE INDEX idx_activity_logs_type ON activity_logs(activity_type);
-CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at DESC);
-
--- Chat Message Indexes
-CREATE INDEX idx_chat_messages_user_id ON chat_messages(user_id);
-CREATE INDEX idx_chat_messages_grandparent_id ON chat_messages(grandparent_id);
-CREATE INDEX idx_chat_messages_created_at ON chat_messages(created_at DESC);
 
 -- Time Capsule Indexes
 CREATE INDEX idx_time_capsules_user_id ON time_capsules(user_id);

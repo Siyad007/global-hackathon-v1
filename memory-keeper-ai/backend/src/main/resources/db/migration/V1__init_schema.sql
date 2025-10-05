@@ -134,23 +134,3 @@ CREATE TABLE prompts (
                          usage_count INT DEFAULT 0,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Activity Logs Table
-CREATE TABLE activity_logs (
-                               id BIGSERIAL PRIMARY KEY,
-                               user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                               activity_type VARCHAR(50) NOT NULL,
-                               metadata JSONB,
-                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Chat Messages Table
-CREATE TABLE chat_messages (
-                               id BIGSERIAL PRIMARY KEY,
-                               user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                               grandparent_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-                               message TEXT NOT NULL,
-                               response TEXT NOT NULL,
-                               is_helpful BOOLEAN,
-                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
