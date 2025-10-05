@@ -40,6 +40,8 @@ ai:
     api-key: ${ELEVENLABS_API_KEY}
   assemblyai:
     api-key: ${ASSEMBLYAI_API_KEY}
+  stabilityai:
+    api-key: ${STABILITYAI_API_KEY}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
