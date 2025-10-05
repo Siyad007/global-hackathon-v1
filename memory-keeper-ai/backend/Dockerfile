@@ -21,7 +21,7 @@ RUN mvn clean install -DskipTests
 
 # Use a lightweight JRE 21 image for the final application
 # The comment is now on its own line, which is correct.
-FROM openjdk:21-jre-slim
+FROM openjdk:21-slim
 
 # Set the working directory
 WORKDIR /app
