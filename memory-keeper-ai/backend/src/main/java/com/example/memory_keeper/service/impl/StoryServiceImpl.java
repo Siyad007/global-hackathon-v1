@@ -122,7 +122,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    @Cacheable(value = "user-stories", key = "#userId + '-' + #pageable.pageNumber")
+//    @Cacheable(value = "user-stories", key = "#userId + '-' + #pageable.pageNumber")
     public Page<StoryResponse> getUserStories(Long userId, Pageable pageable) {
         return storyRepository.findByUserId(userId, pageable)
                 .map(this::convertToResponse);

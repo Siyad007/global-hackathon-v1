@@ -4,6 +4,8 @@
 spring:
   application:
     name: memory-keeper
+    cache:
+      type: none
 
   profiles:
     active: dev
@@ -21,10 +23,10 @@ spring:
         order_updates: true
 
   # Cache Configuration
-  cache:
-    type: redis
-    redis:
-      time-to-live: 3600000  # 1 hour
+#  cache:
+#    type: redis
+#    redis:
+#      time-to-live: 3600000  # 1 hour
 
   # File Upload
   servlet:
