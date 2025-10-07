@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "emotions")
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

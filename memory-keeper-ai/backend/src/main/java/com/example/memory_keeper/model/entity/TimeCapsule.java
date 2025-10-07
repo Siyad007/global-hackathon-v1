@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "time_capsules")
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

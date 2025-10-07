@@ -15,7 +15,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "stories")
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

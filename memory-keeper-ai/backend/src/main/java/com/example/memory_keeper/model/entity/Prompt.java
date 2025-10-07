@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "prompts")
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

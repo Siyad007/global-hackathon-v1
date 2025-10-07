@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @Table(name = "reactions", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"story_id", "user_id", "reaction_type"})
 })
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

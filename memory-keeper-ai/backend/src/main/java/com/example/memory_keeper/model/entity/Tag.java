@@ -11,7 +11,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tags")
-@Data
+@Getter // Use Getter
+@Setter // Use Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
