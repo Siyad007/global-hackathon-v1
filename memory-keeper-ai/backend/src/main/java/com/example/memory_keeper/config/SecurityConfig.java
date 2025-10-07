@@ -48,8 +48,8 @@ public class SecurityConfig {
                         // --- END OF THE CRITICAL FIX ---
 
                         // Publicly accessible endpoints
-                        .requestMatchers("/api/auth/").permitAll()
-                        .requestMatchers("/api-docs/", "/swagger-ui/", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/").permitAll()
 
                         // All other requests must be authenticated
