@@ -1,5 +1,5 @@
+// src/main/java/com/example/memory_keeper/model/entity/Tag.java
 package com.example.memory_keeper.model.entity;
-
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,17 +26,24 @@ public class Tag {
 
     private String category;
 
-    @Column(name = "usage_count")
+    // --- START OF FIX ---
+    @Column(name = "usage_count", nullable = false)
+    @Builder.Default // This tells Lombok's builder to use the default value
     private Integer usageCount = 0;
+    // --- END OF FIX ---
+
+    @ManyToMany(mappedBy = "tags")
+    @Builder.Default
+    private Set<Story> stories = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToMany(mappedBy = "tags")
-    private Set<Story> stories = new HashSet<>();
-
     public void incrementUsage() {
+        if (this.usageCount == null) {
+            this.usageCount = 0;
+        }
         this.usageCount++;
     }
 }
