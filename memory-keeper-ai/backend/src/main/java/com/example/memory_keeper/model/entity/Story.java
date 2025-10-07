@@ -74,6 +74,7 @@ public class Story {
     private Boolean isFeatured = false;
 
     @Column(name = "views_count")
+    @Builder.Default
     private Integer viewsCount = 0;
 
     @CreationTimestamp
