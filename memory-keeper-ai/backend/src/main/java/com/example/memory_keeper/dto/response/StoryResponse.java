@@ -25,6 +25,7 @@ public class StoryResponse {
     private String summary;
 
     private String audioUrl;
+    private String ttsAudioUrl;
     private String imageUrl;
 
     private String category;

@@ -53,6 +53,7 @@ public class StoryServiceImpl implements StoryService {
                 .summary(request.getSummary())
                 .audioUrl(request.getAudioUrl())
                 .imageUrl(request.getImageUrl())
+                .ttsAudioUrl(request.getTtsAudioUrl())
                 .category(StoryCategory.valueOf(request.getCategory().toUpperCase()))
                 .sentimentLabel(request.getSentimentLabel())
                 .sentimentScore(request.getSentimentScore() != null ?
@@ -73,14 +74,11 @@ public class StoryServiceImpl implements StoryService {
         if (request.getEmotions() != null && !request.getEmotions().isEmpty()) {
             Set<Emotion> emotions = request.getEmotions().stream()
                     .map(emotionData -> {
-                        // --- START OF FIX 1 ---
-                        // The key from the AI response is "label", not "type".
                         String emotionLabel = emotionData.get("label").toString().toUpperCase();
-                        // --- END OF FIX 1 ---
 
                         return Emotion.builder()
                                 .story(story)
-                                .emotionType(EmotionType.valueOf(emotionLabel)) // Use the corrected variable
+                                .emotionType(EmotionType.valueOf(emotionLabel))
                                 .confidence(BigDecimal.valueOf(
                                         Double.parseDouble(emotionData.get("score").toString())))
                                 .build();
@@ -93,18 +91,15 @@ public class StoryServiceImpl implements StoryService {
         Story savedStory = storyRepository.save(story);
 
         // Update User Stats
-        // --- START OF FIX 2 ---
-        // Add a null-check for safety, even though the User entity has defaults.
-        // This prevents crashes if existing users in the DB have null values.
         int currentStories = (user.getTotalStories() != null) ? user.getTotalStories() : 0;
         user.setTotalStories(currentStories + 1);
-        // --- END OF FIX 2 ---
         userRepository.save(user);
 
         log.info("Story created: {} by user: {}", savedStory.getId(), user.getId());
 
         return convertToResponse(savedStory);
     }
+
     @Override
     @CacheEvict(value = "stories", key = "#storyId")
     public StoryResponse addReaction(Long storyId, Long userId, ReactionType reactionType) {
@@ -133,7 +128,6 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-//    @Cacheable(value = "user-stories", key = "#userId + '-' + #pageable.pageNumber")
     public Page<StoryResponse> getUserStories(Long userId, Pageable pageable) {
         return storyRepository.findByUserId(userId, pageable)
                 .map(this::convertToResponse);
@@ -164,8 +158,6 @@ public class StoryServiceImpl implements StoryService {
 
         return convertToResponse(story);
     }
-
-
 
     @Override
     @CacheEvict(value = "stories", key = "#storyId")
@@ -221,6 +213,7 @@ public class StoryServiceImpl implements StoryService {
                 .enhancedStory(story.getEnhancedStory())
                 .summary(story.getSummary())
                 .audioUrl(story.getAudioUrl())
+                .ttsAudioUrl(story.getTtsAudioUrl())  // ✅ ADDED: This was missing!
                 .imageUrl(story.getImageUrl())
                 .category(story.getCategory().toString())
                 .sentimentLabel(story.getSentimentLabel())

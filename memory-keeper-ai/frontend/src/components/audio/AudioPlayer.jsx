@@ -2,13 +2,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiPlay, FiPause, FiVolume2, FiDownload } from 'react-icons/fi';
 
-const AudioPlayer = ({ audioUrl, title = 'Audio Story' }) => {
+const AudioPlayer = ({ audioUrl, ttsAudioUrl, title = 'Audio Story' }) => {
+  // ✅ NEW: State for which audio source is active
+  const [activeSource, setActiveSource] = useState(ttsAudioUrl ? 'tts' : 'original');
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   
   const audioRef = useRef(null);
+  
+  // ✅ NEW: Get current audio URL based on active source
+  const currentAudioUrl = activeSource === 'tts' ? ttsAudioUrl : audioUrl;
   
   useEffect(() => {
     const audio = audioRef.current;
@@ -30,7 +36,7 @@ const AudioPlayer = ({ audioUrl, title = 'Audio Story' }) => {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', () => setIsPlaying(false));
     };
-  }, []);
+  }, [currentAudioUrl]); // ✅ Updated dependency
   
   const togglePlay = () => {
     if (isPlaying) {
@@ -39,6 +45,25 @@ const AudioPlayer = ({ audioUrl, title = 'Audio Story' }) => {
       audioRef.current.play();
     }
     setIsPlaying(!isPlaying);
+  };
+  
+  // ✅ NEW: Switch between audio sources
+  const switchAudioSource = (source) => {
+    const wasPlaying = isPlaying;
+    if (isPlaying) {
+      audioRef.current.pause();
+    }
+    setActiveSource(source);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    
+    // Auto-play new source if previous was playing
+    if (wasPlaying) {
+      setTimeout(() => {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }, 100);
+    }
   };
   
   const handleSeek = (e) => {
@@ -62,14 +87,58 @@ const AudioPlayer = ({ audioUrl, title = 'Audio Story' }) => {
   
   const downloadAudio = () => {
     const link = document.createElement('a');
-    link.href = audioUrl;
+    link.href = currentAudioUrl;
     link.download = `${title}.mp3`;
     link.click();
   };
   
+  // ✅ NEW: Don't render if no audio available
+  if (!audioUrl && !ttsAudioUrl) {
+    return null;
+  }
+  
   return (
     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+      {/* ✅ Updated audio element to use currentAudioUrl */}
+      <audio ref={audioRef} src={currentAudioUrl} preload="metadata" />
+      
+      {/* ✅ NEW: Audio Source Toggle (only show if both exist) */}
+      {audioUrl && ttsAudioUrl && (
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => switchAudioSource('original')}
+            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+              activeSource === 'original'
+                ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-md'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            🎤 Original Recording
+          </button>
+          <button
+            onClick={() => switchAudioSource('tts')}
+            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+              activeSource === 'tts'
+                ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-md'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            🤖 AI Narration
+          </button>
+        </div>
+      )}
+      
+      {/* ✅ NEW: Single source label */}
+      {audioUrl && !ttsAudioUrl && (
+        <div className="mb-4 text-center text-sm text-gray-600 font-medium">
+          🎤 Original Recording
+        </div>
+      )}
+      {!audioUrl && ttsAudioUrl && (
+        <div className="mb-4 text-center text-sm text-gray-600 font-medium">
+          🤖 AI Narration
+        </div>
+      )}
       
       <div className="flex items-center gap-4 mb-4">
         {/* Play/Pause Button */}
@@ -124,6 +193,13 @@ const AudioPlayer = ({ audioUrl, title = 'Audio Story' }) => {
           className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
       </div>
+      
+      {/* ✅ NEW: Info badge for TTS */}
+      {activeSource === 'tts' && (
+        <div className="mt-4 text-center text-xs text-gray-500 italic">
+          🎙️ AI-narrated in a warm, natural voice
+        </div>
+      )}
     </div>
   );
 };

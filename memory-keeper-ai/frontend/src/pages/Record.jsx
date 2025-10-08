@@ -1,4 +1,4 @@
-// src/pages/Record.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -187,6 +187,9 @@ const Record = () => {
         cleanedTranscript: cleanedTranscript,
       };
       
+      console.log('🎙️ AI Response Data:', enhancedData);
+      console.log('🤖 TTS Audio URL:', enhancedData.ttsAudioUrl);
+      
       setAiResponse(enhancedData);
       setStep('preview');
       toast.success('✨ Story enhanced!');
@@ -212,6 +215,7 @@ const Record = () => {
         enhancedStory: aiResponse.enhancedStory,
         summary: aiResponse.summary,
         audioUrl: aiResponse.audioUrl,
+        ttsAudioUrl: aiResponse.ttsAudioUrl, // ✅ FIXED: This line was missing
         imageUrl: aiResponse.imageUrl,
         category: aiResponse.category,
         sentimentLabel: aiResponse.sentimentLabel,
@@ -997,37 +1001,72 @@ const Record = () => {
                     ))}
                   </motion.div>
                   
-                  {/* Story Actions */}
+                  {/* Audio Players Section */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
-                    className="mt-8 pt-8 border-t border-slate-200 flex flex-wrap gap-3"
+                    className="mt-8 pt-8 border-t border-slate-200 space-y-4"
                   >
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
-                    >
-                      <FiPlay className="w-4 h-4" />
-                      Listen to Story
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
-                    >
-                      <FiDownload className="w-4 h-4" />
-                      Download
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
-                    >
-                      <FiEdit3 className="w-4 h-4" />
-                      Edit Story
-                    </motion.button>
+                    {/* TTS Audio Player */}
+                    {aiResponse.ttsAudioUrl && (
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <FiPlay className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-slate-900">🤖 AI Narration</h4>
+                            <p className="text-sm text-slate-600">Listen to your story in AI voice</p>
+                          </div>
+                        </div>
+                        <audio 
+                          controls 
+                          src={aiResponse.ttsAudioUrl} 
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Original Audio Player */}
+                    {aiResponse.audioUrl && (
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <FiMic className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-slate-900">🎤 Original Recording</h4>
+                            <p className="text-sm text-slate-600">Your original voice recording</p>
+                          </div>
+                        </div>
+                        <audio 
+                          controls 
+                          src={aiResponse.audioUrl} 
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
+                      >
+                        <FiDownload className="w-4 h-4" />
+                        Download
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
+                      >
+                        <FiEdit3 className="w-4 h-4" />
+                        Edit Story
+                      </motion.button>
+                    </div>
                   </motion.div>
                 </div>
               </motion.div>
