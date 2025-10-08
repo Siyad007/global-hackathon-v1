@@ -12,10 +12,7 @@ spring:
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 2
-      minimum-idle: 1
-      connection-timeout: 20000
-      leak-detection-threshold: 60000
+      maximum-pool-size: 20
 
   data:
     redis:
@@ -32,8 +29,7 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: true
-    validate-on-migrate: false # This is good. It creates the history table if it doesn't exist.
+    baseline-on-migrate: true # This is good. It creates the history table if it doesn't exist.
 
 jwt:
   secret: ${JWT_SECRET}
