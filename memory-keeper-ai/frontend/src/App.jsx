@@ -21,10 +21,7 @@ import PrivateRoute from './components/common/PrivateRoute';
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Debug: Simple test to see if anything renders */}
-      <div style={{backgroundColor: 'red', color: 'white', padding: '10px', textAlign: 'center'}}>
-        APP IS RENDERING - If you see this, React is working!
-      </div>
+    
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />

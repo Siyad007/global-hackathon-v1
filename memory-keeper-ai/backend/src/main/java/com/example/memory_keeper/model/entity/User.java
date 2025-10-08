@@ -52,6 +52,10 @@ public class User implements UserDetails {
     private LocalDate dateOfBirth;
 
     private String location;
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY) //
+    @JoinColumn(name = "family_id")
+    private Family family;
 
     // --- START OF FINAL FIX ---
     @Column(name = "streak_count", nullable = false)
