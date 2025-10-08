@@ -22,4 +22,6 @@ public class SignupRequest {
     private String password;
 
     @NotNull(message = "Role is required")
-    private UserRole role;}
+    private UserRole role;
+private String inviteCode;
+}

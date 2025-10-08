@@ -27,6 +27,8 @@ public class Family {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+    @Column(name = "invite_code", unique = true)
+    private String inviteCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     bio TEXT,
     date_of_birth DATE,
     location VARCHAR(255),
+    family_id BIGINT REFERENCES families(id) ON DELETE SET NULL,
     streak_count INT NOT NULL DEFAULT 0,
     total_stories INT NOT NULL DEFAULT 0,
     is_active BOOLEAN DEFAULT true,
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS families (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    invite_code VARCHAR(20) UNIQUE,
     created_by BIGINT REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
