@@ -2,6 +2,8 @@
 # Common configuration shared across ALL environments
 
 spring:
+  main:
+    lazy-initialization: true 
   application:
     name: memory-keeper
     cache:
@@ -14,11 +16,11 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect  
         format_sql: true
         use_sql_comments: true
         jdbc:
-          batch_size: 20
+          batch_size: 5
         order_inserts: true
         order_updates: true
 
@@ -52,6 +54,11 @@ spring:
 
 # Server Configuration
 server:
+tomcat:
+    threads:
+      max: 5              # Low CPU can't handle many threads
+      min-spare: 1
+    max-connections: 50
   port: 8080
   error:
     include-message: always
