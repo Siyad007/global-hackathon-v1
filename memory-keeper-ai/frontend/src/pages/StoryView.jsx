@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiCalendar, FiEye } from 'react-icons/fi';
 import Header from '../components/layout/Header';
 import Spinner from '../components/common/Spinner';
+import AudioPlayer from '../components/audio/AudioPlayer'; 
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
 import { format } from 'date-fns';
@@ -202,17 +203,17 @@ const StoryView = () => {
               </div>
             )}
             
-            {/* Audio Player */}
-            {currentStory.audioUrl && (
-              <div className="mb-8 bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">🎧 Listen to the Original Recording:</h3>
-                <audio
-                  controls
-                  src={currentStory.audioUrl}
-                  className="w-full"
-                />
-              </div>
-            )}
+           {/* Audio Player */}
+ {(currentStory.audioUrl || currentStory.ttsAudioUrl) && (
+  <div className="mb-8">
+    <h3 className="font-semibold mb-3 text-gray-900">🎧 Listen to the Story:</h3>
+    <AudioPlayer
+      audioUrl={currentStory.audioUrl}
+      ttsAudioUrl={currentStory.ttsAudioUrl}
+      title={currentStory.title}
+    />
+  </div>
+)}
             
             {/* Story Content */}
             <div className="prose prose-lg max-w-none mb-8">

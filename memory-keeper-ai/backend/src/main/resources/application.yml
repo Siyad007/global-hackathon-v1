@@ -79,7 +79,8 @@ ai:
 
   assemblyai:
     api-url: https://api.assemblyai.com/v2
-
+#  tts:
+#    api-url: https://api.voicerss.org
 # CORS
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://memory-keeper-ai.vercel.app}

@@ -48,7 +48,8 @@ public class Story {
 
     @Column(name = "audio_url")
     private String audioUrl;
-
+    @Column(name = "tts_audio_url")
+    private String ttsAudioUrl;
     @Column(name = "image_url")
     private String imageUrl;
 

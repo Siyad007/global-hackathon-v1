@@ -25,6 +25,7 @@ public class StoryRequest {
     private String summary;
     private String audioUrl;
     private String imageUrl;
+    private String ttsAudioUrl;
 
     @NotBlank(message = "Category is required")
     private String category;

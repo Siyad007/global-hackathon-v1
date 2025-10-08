@@ -1,6 +1,7 @@
 // src/main/java/com/example/memory_keeper/service/impl/AIServiceImpl.java
 package com.example.memory_keeper.service.impl;
 
+import com.example.memory_keeper.ai.TTSClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.memory_keeper.ai.GroqClient;
@@ -39,6 +40,7 @@ public class AIServiceImpl implements AIService {
     private final HuggingFaceClient huggingFaceClient;
     private final StabilityAIClient stabilityAIClient; // Inject the new Stability AI client
     private final CloudinaryService cloudinaryService;
+    private final TTSClient ttsClient;
     private final ObjectMapper objectMapper;
 
     /**
@@ -133,6 +135,28 @@ public class AIServiceImpl implements AIService {
 
             response.setWordCount(fullTranscript.split("\\s+").length);
             log.info("🎉 Story enhancement complete! (Image is generating in the background)");
+            if (response.getEnhancedStory() != null && !response.getEnhancedStory().isEmpty()) {
+                try {
+                    log.info("🎙️ Generating TTS audio...");
+                    byte[] audioBytes = ttsClient.textToSpeech(response.getEnhancedStory());
+
+                    // Upload to Cloudinary
+                    ByteArrayMultipartFile audioFile = new ByteArrayMultipartFile(
+                            audioBytes,
+                            "tts-audio",
+                            "tts-audio.mp3",
+                            "audio/mpeg"
+                    );
+
+                    String ttsUrl = cloudinaryService.uploadAudio(audioFile);
+                    response.setTtsAudioUrl(ttsUrl);  // Add this field to AIResponse
+
+                    log.info("✅ TTS audio generated: {}", ttsUrl);
+                } catch (Exception e) {
+                    log.warn("⚠️ TTS generation failed (non-critical): {}", e.getMessage());
+                }
+            }
+
             return response;
 
         } catch (Exception e) {

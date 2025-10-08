@@ -17,5 +17,6 @@ public class AIResponse {
     private Double sentimentScore;
     private List<Map<String, Object>> emotions;
     private String imageUrl;
+    private String ttsAudioUrl;
     private Integer wordCount;
 }
